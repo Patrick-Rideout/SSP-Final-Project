@@ -5,44 +5,74 @@ function getCurrentTime() {
   return new Date().toISOString();
 }
 
-function createEmptyBoard(width, height) {
+function createNewBoard(width, height, fleet) {
   const board = [];
   for (let y = 0; y < height; y++) {
     const row = [];
-    
     for (let x = 0; x < width; x++) {
       row.push(null);
     }
-    
     board.push(row);
   }
-  return board;
+
+  const occupied = new Set();
+  const playerFleet = [];
+
+  fleet.map((ship, i) => {
+    const shipSize = i + 2;
+    const shipCount = ship[0]; // total ships of this type
+    const afloat = ship[1];
+    const type = getShipNameByIndex(i);
+
+    for (let n = 0; n < shipCount; n++) {
+      let placed = false;
+
+      while (!placed) {
+        const horizontal = Math.random() < 0.5;
+        const maxX = horizontal ? width - shipSize : width - 1;
+        const maxY = horizontal ? height - 1 : height - shipSize;
+
+        const startX = Math.floor(Math.random() * (maxX + 1));
+        const startY = Math.floor(Math.random() * (maxY + 1));
+
+        const positions = [];
+
+        for (let j = 0; j < shipSize; j++) {
+          const x = horizontal ? startX + j : startX;
+          const y = horizontal ? startY : startY + j;
+          positions.push([x, y]);
+        }
+
+        // Check if any positions are already occupied
+        const collision = positions.some(([x, y]) => occupied.has(`${x},${y}`));
+        if (!collision) {
+          positions.forEach(([x, y]) => {
+            board[y][x] = type[0]; // Or use 'S' if you prefer generic ship marker
+            occupied.add(`${x},${y}`);
+          });
+
+          playerFleet.push({
+            type,
+            size: shipSize,
+            total: shipCount,
+            afloat,
+            position: positions
+          });
+
+          placed = true;
+        }
+      }
+    }
+  });
+
+  gameState = playerFleet;
+
+  return board; 
 }
 
 function getShipNameByIndex(index) {
   const shipNames = ['Destroyer', 'Cruiser/Submarine', 'Battleship', 'Carrier'];
   return shipNames[index];
-}
-
-function createLetterBoard(grid) {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'; // Use up to 26 columns (you can extend this if needed)
-    let boardView = '';
-  
-    // Loop through each row (height of the board)
-    for (let y = 0; y < grid.length; y++) {
-      let row = '';
-  
-      // Loop through each column (width of the board)
-      for (let x = 0; x < grid[y].length; x++) {
-        const cell = grid[y][x] === null ? ' ' : grid[y][x]; // Use space if null, or show the content (like a ship)
-        row += `${cell} `;
-      }
-  
-      // Append the row to the board string, with a newline after each row
-      boardView += `${letters[y]} ${row.trim()}\n`; // Label rows with letters
-    }
-  
-    return boardView;
 }
 
 const newGame = (req, res) => {
@@ -61,17 +91,17 @@ const newGame = (req, res) => {
     return res.status(400).json({ message: 'Grid/Fleet Error' });
   }
 
-  const [width, height] = grid;
+  const [x, y] = grid;
 
   gameState = {
-    gridSize: { width, height },
+    gridSize: { x, y },
     fleet: fleet.map((ship, i) => ({
       type: getShipNameByIndex(i),
       size: i + 2,
       total: ship[0],
       afloat: ship[1],
     })),
-    board: createEmptyBoard(width, height),
+    board: createNewBoard(x, y, fleet),
     currentPlayer: 'Player1',
     isGameOver: false,
     serverMoves: [],
@@ -95,7 +125,6 @@ const newGame = (req, res) => {
 const lob = (req, res) => {
 
     let status = 'miss';
-    let sunk = false;
 
     if (!gameInProgress) {
       return res.status(400).json({
@@ -115,50 +144,15 @@ const lob = (req, res) => {
     }
   
     let [x, y] = grid;
-  
-    // if (x >= 0 && x < gameState.gridSize.width) {
-    //   return res.status(400).json({
-    //     status: 'reject',
-    //     message: 'Invalid coordinates',
-    //     time: getCurrentTime()
-    //   });
-    // }
 
-    // if (y >= 0 && y < gameState.gridSize.height) {
-    //     return res.status(400).json({
-    //       status: 'reject',
-    //       message: 'Invalid coordinates',
-    //       time: getCurrentTime()
-    //     });
-    //   }
-    
-    if (gameState.board[y][x] !== null) {
+    if (gameState.board[y][x] != null) {
       status = 'hit';
-      gameState.board[y][x] = 'hit';
-      gameState.playerFleet.forEach((ship) => {
-        if (ship.position[0] === x && ship.position[1] === y) {
-          ship.afloat--;
-        }
-      });
-  
-      // Check if any ship is sunk (i.e., all parts of the ship are hit)
-      sunk = gameState.playerFleet.every((ship) => ship.afloat === 0);
-  
-      if (sunk) {
-        // If all ships are sunk, the game ends
-        return res.status(200).json({
-          status: 'sunk',
-          grid: [x, y],
-          cycle: ++gameState.cycle,
-          time: getCurrentTime(),
-        });
-      }
+      gameState.board[y][x] = 'X';
     } else {
-      // It's a miss
-      gameState.board[y][x] = 'miss'; // Mark it as miss
+      status = 'miss';
+
     }
   
-    // Update cycle and return response
     res.status(200).json({
       status: status,
       grid: [x, y],
@@ -182,17 +176,33 @@ const lob = (req, res) => {
 
 const printGrid = (req, res) => {
 
-    if (!gameInProgress) {
+  if (!gameInProgress) {
     return res.status(400).json({ message: 'No game in progress' });
   }
 
-  // Use the existing helper function to format the board
-  const letterBoard = createLetterBoard(gameState.board);
+  PrintableBoard = "";
 
-  // Respond with the formatted board
+  
+  for (let i = 0; i < gameState.gridSize.x + 2; i++) {
+    PrintableBoard += "-";
+  }
+  PrintableBoard+= "\n"
+
+  for (let i = 0; i < gameState.board.length; i++) {
+    PrintableBoard+= "|"
+    const cell = gameState.board[i];
+    PrintableBoard += (cell !== null) ? cell : ".";
+    PrintableBoard+= "|\n"
+  }
+
+  for (let i = 0; i < gameState.gridSize.x + 2; i++) {
+    PrintableBoard += "-";
+  }
+
+
   res.status(200).json({
     message: 'Current game board',
-    board: letterBoard, // Send the board as a string representation
+    board: PrintableBoard,
   });
 };
 
