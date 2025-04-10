@@ -1,8 +1,9 @@
 const Battleship = require('../BattleshipGame');
 
 const newGame = (req, res) => {
-  const grid = req.query.grid ? JSON.parse(req.query.grid) : [10, 10];
-  const fleet = req.query.fleet ? JSON.parse(req.query.fleet) : [[1, 1], [2, 2], [1, 1], [1, 1]];
+  const grid = req.body.grid || (req.query.grid ? JSON.parse(req.query.grid) : [10, 10]);
+  const fleet = req.body.fleet || (req.query.fleet ? JSON.parse(req.query.fleet) : [[1,1],[2,2],[1,1],[1,1]]);
+
   res.json(Battleship.newGame(grid, fleet));
 };
 
