@@ -3,59 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <title>API Client</title>
-  <style></style>
+  <link rel="stylesheet" type="text/css" href="Battleship.css" />
+  <script src="battleship.js"></script>
 </head>
 <body>
 
-  <h1>Simple API Client</h1>
+  <h1>Battleship</h1>
 
-  <label for="url">API URL</label>
-  <input type="text" id="url" value="https://jsonplaceholder.typicode.com/posts">
+  <div class="button-container">
+    <button id="new">New</button>
+    <button id="new">Print</button>
+    <button id="lob">Lob</button>
+    <button id="hit">Hit</button>
+    <button id="miss">Miss</button>
+    <button id="status">Status</button>
+    <button id="quit">Quit</button>
+    <button id="concede">Concede</button>
+  </div>
 
-  <label for="method">HTTP Method</label>
-  <select id="method">
-    <option value="GET">GET</option>
-    <option value="POST">POST</option>
-  </select>
-
-  <label for="body">Request Body (JSON)</label>
-  <textarea id="body" rows="6" placeholder='{ "title": "foo", "body": "bar", "userId": 1 }'></textarea>
-
-  <button onclick="sendRequest()">Send Request</button>
-
-  <h2>Response:</h2>
-  <div id="response">Waiting for request...</div>
-
-  <script>
-    async function sendRequest() {
-      const url = document.getElementById('url').value;
-      const method = document.getElementById('method').value;
-      const body = document.getElementById('body').value;
-      const responseDiv = document.getElementById('response');
-
-      const options = {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-      };
-
-      if (method === 'POST' && body) {
-        try {
-          options.body = JSON.stringify(JSON.parse(body)); // Validate JSON
-        } catch (err) {
-          responseDiv.textContent = 'Invalid JSON in request body.';
-          return;
-        }
-      }
-
-      try {
-        const response = await fetch(url, options);
-        const result = await response.json();
-        responseDiv.textContent = JSON.stringify(result, null, 2);
-      } catch (error) {
-        responseDiv.textContent = 'Error: ' + error.message;
-      }
-    }
-  </script>
+  <div id="response" class="box">Response</div>
+  <div id="message" class="box">Message</div>
 
 </body>
 </html>
