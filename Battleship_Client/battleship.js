@@ -1,6 +1,6 @@
 function newGame() {
   const payload = {
-    grid: [20, 20],
+    grid: [10, 10],
     fleet: [[1, 1], [2, 2], [1, 1], [1, 1]]
   };
 
