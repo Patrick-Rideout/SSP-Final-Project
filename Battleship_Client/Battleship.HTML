@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>API Client</title>
+  <link rel="stylesheet" type="text/css" href="Battleship.css" />
+  <script src="battleship.js"></script>
+</head>
+<body>
+
+  <h1>Battleship</h1>
+
+  <div class="buttons">
+    <button onclick="newGame()">New Game</button>
+    <button onclick="printGame()">Print</button>
+    <button onclick="hit()">Hit</button>
+    <button onclick="miss()">Miss</button>
+    <button onclick="concede()">Concede</button>
+    <button onclick="cancel()">Cancel</button>
+    <button onclick="statusGame()">Status</button>
+  </div>
+  
+  <div class="lob-button">
+    <input type="number" id="lob-x" placeholder="X coordinate">
+    <input type="number" id="lob-y" placeholder="Y coordinate">
+    <button onclick="lob()">Lob</button>
+  </div>
+  
+  <div id="response" class="box">Response</div>
+  <div id="message" class="box">Message</div>
+
+</body>
+</html>

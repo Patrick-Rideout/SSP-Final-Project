@@ -294,7 +294,6 @@ class BattleshipGame {
           return { status: 'reject', message: 'No game in progress', time: Date.now() };
         }
       
-        // Create a simple text representation of the server's board (for debugging)
         const serverBoardText = this.createBoardText(this.serverBoard, true);
         const userBoardText = this.createBoardText(this.userBoard, false);
       
@@ -346,4 +345,4 @@ class BattleshipGame {
       }
   }
   
-  module.exports = new BattleshipGame();
+  module.exports = new BattleshipGame(); 
