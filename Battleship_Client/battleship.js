@@ -14,27 +14,7 @@ function newGame() {
     .then(res => res.json())
     .then(data => {
       document.getElementById("response").textContent = JSON.stringify(data, null, 2);
-      document.getElementById("message").textContent = data.message || data.status || "No message";
-    })
-    .catch(err => {
-      document.getElementById("response").textContent = "Error";
-      document.getElementById("message").textContent = err.message;
-    });
-}
-
-function printGame() {
-  fetch("http://localhost:3000/battleship/print")
-    .then(res => res.json())
-    .then(data => {
-      const formatted = 
-`==== SERVER BOARD ====
-${data.serverBoard}
-
-==== USER BOARD ====
-${data.userBoard}`;
-
-      document.getElementById("response").textContent = formatted;
-      document.getElementById("message").textContent = data.message || data.status || "No message";
+      document.getElementById("message").textContent = data.message || data.status;
     })
     .catch(err => {
       document.getElementById("response").textContent = "Error";

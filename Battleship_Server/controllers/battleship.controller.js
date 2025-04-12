@@ -22,8 +22,8 @@ const lob = (req, res) => {
 
   if (!grid || !Array.isArray(grid)) {
     return res.json({ 
-      status: 'reject', 
-      message: 'Invalid grid format. Expected {"grid": [x,y]}',
+      status: 'error', 
+      message: 'Invalid grid format.',
       time: Date.now() 
     });
   }
